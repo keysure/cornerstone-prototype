@@ -1,7 +1,10 @@
 # Cornerstone AEC — clickable prototype
 
-Static Next.js export. Live site: https://keysure.github.io/cornerstone-prototype/
+Static Next.js export (fictional demo data only).
 
-Tour: https://keysure.github.io/cornerstone-prototype/tour/
+## Live URLs
 
-Fictional demo data only. Deployed via GitHub Actions (unpacks site.b64.* archive).
+- **Tour (GitHub Pages):** https://keysure.github.io/cornerstone-prototype/tour/
+- **Interim tunnel (while agent box is up):** https://surrounding-trademark-available-discovery.trycloudflare.com/tour/
+
+Repo: https://github.com/keysure/cornerstone-prototype
