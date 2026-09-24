@@ -18,9 +18,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Unpack static site
+        run: |
+          set -euo pipefail
+          cat site.b64.* > site.b64
+          python3 - <<'PY'
+          import base64, tarfile, io, pathlib
+          data = base64.b64decode(pathlib.Path("site.b64").read_text())
+          pathlib.Path("public").mkdir(exist_ok=True)
+          with tarfile.open(fileobj=io.BytesIO(data), mode="r:gz") as tar:
+              tar.extractall("public")
+          pathlib.Path("public/.nojekyll").write_text("")
+          print("extracted", len(list(pathlib.Path("public").rglob("*"))))
+          PY
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: .
+          path: public
       - id: deployment
         uses: actions/deploy-pages@v4
