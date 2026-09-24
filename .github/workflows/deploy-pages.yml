@@ -18,14 +18,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Download built site archive
+      - name: Unpack static site
         run: |
           set -euo pipefail
-          curl -fsSL "https://surrounding-trademark-available-discovery.trycloudflare.com/site-pages.tar.gz" -o site.tar.gz
-          mkdir -p public
-          tar -xzf site.tar.gz -C public
-          touch public/.nojekyll
-          find public -type f | wc -l
+          ls -la site.b64.*
+          cat site.b64.0* > site.b64
+          python3 - <<'PY'
+          import base64, tarfile, io, pathlib
+          data = base64.b64decode(pathlib.Path("site.b64").read_text())
+          public = pathlib.Path("public")
+          public.mkdir(exist_ok=True)
+          with tarfile.open(fileobj=io.BytesIO(data), mode="r:gz") as tar:
+              tar.extractall(public)
+          (public / ".nojekyll").write_text("")
+          print("extracted", sum(1 for _ in public.rglob("*")))
+          PY
       - uses: actions/configure-pages@v5
         with:
           enablement: true
