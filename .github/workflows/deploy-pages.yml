@@ -18,30 +18,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Download built site archive
+      - name: Unpack static site from site.b64 parts
         run: |
           set -euo pipefail
-          # Prefer repo parts if complete; else fetch from live tunnel mirror
-          if ls site.b64.* >/dev/null 2>&1 && [ "$(cat site.b64.* | wc -c)" -gt 100000 ]; then
-            cat site.b64.* > site.b64
-            python3 - <<'PY'
+          cat site.b64.* > site.b64
+          python3 - <<'PY'
           import base64, tarfile, io, pathlib
           data = base64.b64decode(pathlib.Path('site.b64').read_text())
           pathlib.Path('public').mkdir(exist_ok=True)
           with tarfile.open(fileobj=io.BytesIO(data), mode='r:gz') as tar:
               tar.extractall('public')
           pathlib.Path('public/.nojekyll').write_text('')
-          print('extracted from parts', len(list(pathlib.Path('public').rglob('*'))))
+          print('extracted', len(list(pathlib.Path('public').rglob('*'))))
           PY
-          else
-            curl -fsSL "https://surrounding-trademark-available-discovery.trycloudflare.com/site-pages.tar.gz" -o site.tar.gz
-            mkdir -p public
-            tar -xzf site.tar.gz -C public
-            touch public/.nojekyll
-            echo "extracted from tunnel mirror"
-            find public -type f | wc -l
-          fi
       - uses: actions/configure-pages@v5
+        with:
+          enablement: true
       - uses: actions/upload-pages-artifact@v3
         with:
           path: public
